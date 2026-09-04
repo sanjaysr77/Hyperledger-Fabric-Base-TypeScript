@@ -1,5 +1,0 @@
-.env
-node_modules/
-organizations/
-channel-artifacts/
-*.tar.gz

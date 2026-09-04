@@ -219,9 +219,8 @@ chaincode:
     name:
   builder: $(DOCKER_NS)/fabric-ccenv:$(TWO_DIGIT_VERSION)
   pull: false
-  golang:
+  node:
     runtime: $(DOCKER_NS)/fabric-baseos:$(TWO_DIGIT_VERSION)
-    dynamicLink: false
   java:
     runtime: $(DOCKER_NS)/fabric-javaenv:$(TWO_DIGIT_VERSION)
   node:

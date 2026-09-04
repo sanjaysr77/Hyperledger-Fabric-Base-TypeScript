@@ -6,8 +6,6 @@
 .*.sw*
 .DS_Store
 .project
-# omit Go vendor directories
-vendor/
 .vscode
 .gradle
 .idea
@@ -38,12 +36,7 @@ channel-artifacts/
 *.log
 logs/
 
-# Go vendor (chaincode dependencies)
-chaincode/asset/vendor/
-chaincode/user/vendor/
-chaincode/supplychain/vendor/
-
-# Go build artifacts
+# Node.js
 *.exe
 *.test
 *.out

@@ -52,6 +52,21 @@ setPeerEnv() {
 }
 
 # ============================================================================
+# STEP 0: Build TypeScript Chaincode
+# ============================================================================
+echo ""
+echo -e "${BLUE}Step 0: Building TypeScript chaincode...${NC}"
+
+cd chaincode
+if npm run build >/dev/null 2>&1; then
+    cd ..
+    echo -e "${GREEN}  ✓ Chaincode built${NC}"
+else
+    errorln "Failed to build chaincode"
+    exit 1
+fi
+
+# ============================================================================
 # STEP 1: Package Chaincode
 # ============================================================================
 echo ""
@@ -61,8 +76,8 @@ if [ -f "${CC_NAME}.tar.gz" ]; then
     echo -e "${YELLOW}  ⚠ ${CC_NAME} package already exists, skipping${NC}"
 else
     peer lifecycle chaincode package ${CC_NAME}.tar.gz \
-        --path ./chaincode/${CC_NAME} \
-        --lang golang \
+        --path ../backend/src/chaincode \
+        --lang node \
         --label ${CC_LABEL} >/dev/null 2>&1
     echo -e "${GREEN}  ✓ ${CC_NAME} packaged${NC}"
 fi

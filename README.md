@@ -1,15 +1,46 @@
-## Chaincode Setup
+# Hyperledger Fabric Network
 
-### Option 1: TypeScript Chaincode (In This Repo)
+Infrastructure for Hyperledger Fabric 2.5.x network deployment.
 
-The `chaincode/` folder is set up for TypeScript smart contracts. Write your contracts here and deploy them directly:
+## Directory Structure
+
+- `docker/` - Docker Compose files for CA, CouchDB, and network nodes
+- `scripts/` - Network initialization and deployment scripts
+- `config/` - Fabric core configuration
+- `configtx/` - Channel configuration
+
+## Chaincode
+
+Smart contracts are located in `chaincode/src/` (TypeScript) and built with the Fabric Chaincode Node SDK.
+
+### Build & Deploy
+
+From the project root directory:
 
 ```bash
-./deploy-all-chaincodes.sh
+# Build TS chaincode
+cd chaincode && npm run build
+
+# Deploy to network
+cd ../fabric && ./deploy-all-chaincodes.sh
 ```
 
-### Option 2: Separate TS Project
+### Writing Chaincode
 
-If you're using this repo purely for network infrastructure, delete the `chaincode/` folder and manage smart contracts in a dedicated TypeScript project. Clone just the HLF setup when you need it.
+Implement contracts in `chaincode/src/index.ts` using the Fabric Chaincode Node SDK:
 
----
+```typescript
+import { Contract, Context } from 'fabric-chaincode-node';
+
+export class TokenContract extends Contract {
+  async issueToken(ctx: Context, customerId: string, consentId: string): Promise<void> {
+    // Token logic
+  }
+
+  async validateToken(ctx: Context, tokenId: string): Promise<string> {
+    // Validation logic
+  }
+}
+```
+
+For SDK documentation, see [Fabric Chaincode Node Docs](https://hyperledger-fabric.readthedocs.io/en/latest/chaincode4ade.html#node-chaincode).

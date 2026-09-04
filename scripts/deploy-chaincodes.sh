@@ -31,7 +31,6 @@ export CORE_PEER_TLS_ENABLED=true
 ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 CHANNEL="mychannel"
 CC_NAME="asset"
-CC_SRC_PATH="./chaincode/asset"
 CC_VERSION="1.0"
 CC_SEQUENCE=1
 CC_LABEL="${CC_NAME}_${CC_VERSION}"
@@ -49,11 +48,18 @@ setPeerEnv() {
     export CORE_PEER_ADDRESS=localhost:${PORT}
 }
 
+# Step 0: Build TypeScript chaincode
+echo -e "${YELLOW}Building TypeScript chaincode...${NC}"
+cd ../../../backend
+npm run build || error_exit "Failed to build chaincode"
+cd - > /dev/null
+echo -e "${GREEN}  ✓ Chaincode built${NC}"
+
 # Step 1: Package chaincode
 echo -e "${YELLOW}Packaging chaincode...${NC}"
 peer lifecycle chaincode package ${CC_LABEL}.tar.gz \
-    --path ${CC_SRC_PATH} \
-    --lang golang \
+    --path ../../../backend/src/chaincode \
+    --lang node \
     --label ${CC_LABEL} || error_exit "Failed to package chaincode"
 echo -e "${GREEN}  ✓ Chaincode packaged${NC}"
 
@@ -89,7 +95,6 @@ peer lifecycle chaincode approveformyorg \
     --package-id $PACKAGE_ID \
     --sequence $CC_SEQUENCE \
     --signature-policy "$CC_POLICY" \
-    --collections-config ./chaincode/asset/collections_config.json \
     --tls \
     --cafile $ORDERER_CA || error_exit "Failed to approve for buyer"
 echo -e "${GREEN}  ✓ Approved for buyer${NC}"
@@ -106,7 +111,6 @@ peer lifecycle chaincode approveformyorg \
     --package-id $PACKAGE_ID \
     --sequence $CC_SEQUENCE \
     --signature-policy "$CC_POLICY" \
-    --collections-config ./chaincode/asset/collections_config.json \
     --tls \
     --cafile $ORDERER_CA || error_exit "Failed to approve for seller"
 echo -e "${GREEN}  ✓ Approved for seller${NC}"
@@ -119,7 +123,6 @@ peer lifecycle chaincode checkcommitreadiness \
     --version $CC_VERSION \
     --sequence $CC_SEQUENCE \
     --signature-policy "$CC_POLICY" \
-    --collections-config ./chaincode/asset/collections_config.json \
     --tls \
     --cafile $ORDERER_CA \
     -o localhost:7050 \
@@ -137,7 +140,6 @@ peer lifecycle chaincode commit \
     --version $CC_VERSION \
     --sequence $CC_SEQUENCE \
     --signature-policy "$CC_POLICY" \
-    --collections-config ./chaincode/asset/collections_config.json \
     --tls \
     --cafile $ORDERER_CA \
     --peerAddresses localhost:7051 \
