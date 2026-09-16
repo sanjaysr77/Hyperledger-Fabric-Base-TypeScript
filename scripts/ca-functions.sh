@@ -75,7 +75,7 @@ createPeerOrgCerts() {
 
     # Enroll peer TLS
     echo "  Enrolling peer TLS..."
-    fabric-ca-client enroll -u https://peer0:peer0pw@localhost:${CA_PORT} --caname ca.${ORG_DOMAIN} -M ${PWD}/organizations/peerOrganizations/${ORG_DOMAIN}/peers/peer0.${ORG_DOMAIN}/tls --enrollment.profile tls --csr.hosts peer0.${ORG_DOMAIN} --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/${ORG}/tls-cert.pem >/dev/null 2>&1
+    fabric-ca-client enroll -u https://peer0:peer0pw@localhost:${CA_PORT} --caname ca.${ORG_DOMAIN} -M ${PWD}/organizations/peerOrganizations/${ORG_DOMAIN}/peers/peer0.${ORG_DOMAIN}/tls --enrollment.profile tls --csr.hosts peer0.${ORG_DOMAIN} --csr.hosts localhost --csr.keyrequest.algo rsa --csr.keyrequest.size 2048 --tls.certfiles ${PWD}/organizations/fabric-ca/${ORG}/tls-cert.pem >/dev/null 2>&1
 
     cp ${PWD}/organizations/peerOrganizations/${ORG_DOMAIN}/peers/peer0.${ORG_DOMAIN}/tls/tlscacerts/* ${PWD}/organizations/peerOrganizations/${ORG_DOMAIN}/peers/peer0.${ORG_DOMAIN}/tls/ca.crt
     cp ${PWD}/organizations/peerOrganizations/${ORG_DOMAIN}/peers/peer0.${ORG_DOMAIN}/tls/signcerts/* ${PWD}/organizations/peerOrganizations/${ORG_DOMAIN}/peers/peer0.${ORG_DOMAIN}/tls/server.crt
@@ -177,7 +177,7 @@ createOrdererOrgCerts() {
 
     cp ${PWD}/organizations/ordererOrganizations/example.com/msp/config.yaml ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/config.yaml
 
-    fabric-ca-client enroll -u https://orderer:ordererpw@localhost:7054 --caname ca.orderer.example.com -M ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls --enrollment.profile tls --csr.hosts orderer.example.com --csr.hosts localhost --tls.certfiles ${PWD}/organizations/fabric-ca/orderer/tls-cert.pem >/dev/null 2>&1
+    fabric-ca-client enroll -u https://orderer:ordererpw@localhost:7054 --caname ca.orderer.example.com -M ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls --enrollment.profile tls --csr.hosts orderer.example.com --csr.hosts localhost --csr.keyrequest.algo rsa --csr.keyrequest.size 2048 --tls.certfiles ${PWD}/organizations/fabric-ca/orderer/tls-cert.pem >/dev/null 2>&1
 
     cp ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/tlscacerts/* ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt
     cp ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/signcerts/* ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt

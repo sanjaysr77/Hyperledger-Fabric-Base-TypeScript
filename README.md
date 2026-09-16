@@ -11,15 +11,15 @@ Infrastructure for Hyperledger Fabric 2.5.x network deployment.
 
 ## Chaincode
 
-Smart contracts are located in `chaincode/src/` (TypeScript) and built with the Fabric Chaincode Node SDK.
+Smart contracts are located in `../backend/src/chaincode/` (TypeScript) and built with the Fabric Chaincode Node SDK.
 
 ### Build & Deploy
 
-From the project root directory:
+From the `fabric/` directory:
 
 ```bash
-# Build TS chaincode
-cd chaincode && npm run build
+# Build TS contracts from backend
+cd ../backend && npm run build
 
 # Deploy to network
 cd ../fabric && ./deploy-all-chaincodes.sh
@@ -27,7 +27,7 @@ cd ../fabric && ./deploy-all-chaincodes.sh
 
 ### Writing Chaincode
 
-Implement contracts in `chaincode/src/index.ts` using the Fabric Chaincode Node SDK:
+Implement contracts in `../backend/src/chaincode/index.ts` using the Fabric Chaincode Node SDK:
 
 ```typescript
 import { Contract, Context } from 'fabric-chaincode-node';

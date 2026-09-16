@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Fabric Network Management Script
-# Simple 2-org network with Buyer and Seller
+# 3-org eKYC network with Org1, Org2 and Org3
 #
 
 set -e
@@ -32,8 +32,8 @@ function printHelp() {
   echo "Commands:"
   echo "  all           - Complete deployment (up + createchannel + deploycc)"
   echo "  up            - Start network infrastructure (CA + peers + orderer)"
-  echo "  createchannel - Create mychannel and join both peers"
-  echo "  deploycc      - Deploy asset chaincode to mychannel"
+  echo "  createchannel - Create kycTokenChannel and join all peers"
+  echo "  deploycc      - Deploy KYC token chaincode to kycTokenChannel"
   echo "  start         - Start stopped containers (preserves state)"
   echo "  stop          - Stop containers (preserves data)"
   echo "  down          - Stop and remove containers (keeps CA data)"
@@ -86,7 +86,7 @@ function createNetworkIfNeeded() {
 
 function initializeCADirectories() {
   infoln "Initializing CA directories..."
-  mkdir -p organizations/fabric-ca/{orderer,buyer,seller}
+  mkdir -p organizations/fabric-ca/{orderer,org1,org2,org3}
   infoln "CA directories initialized"
 }
 
@@ -143,8 +143,9 @@ function generateCryptoWithCA() {
   echo ""
 
   createOrdererOrgCerts                          || error_exit "Failed to create orderer certificates"
-  createPeerOrgCerts "buyer"  "7154" "buyer.example.com"  || error_exit "Failed to create buyer certificates"
-  createPeerOrgCerts "seller" "8054" "seller.example.com" || error_exit "Failed to create seller certificates"
+  createPeerOrgCerts "org1" "7154" "org1.example.com"  || error_exit "Failed to create org1 certificates"
+  createPeerOrgCerts "org2" "8054" "org2.example.com" || error_exit "Failed to create org2 certificates"
+  createPeerOrgCerts "org3" "9054" "org3.example.com" || error_exit "Failed to create org3 certificates"
 
   echo ""
   infoln "✅ All certificates generated"
@@ -157,8 +158,8 @@ function generateCrypto() {
   fi
 
   local CA_COUNT=$(docker ps | grep "ca\." | wc -l)
-  if [ $CA_COUNT -lt 3 ]; then
-    error_exit "Fabric CA servers not running (found $CA_COUNT, need 3). Cannot generate certificates."
+  if [ $CA_COUNT -lt 4 ]; then
+    error_exit "Fabric CA servers not running (found $CA_COUNT, need 4). Cannot generate certificates."
   fi
 
   generateCryptoWithCA
@@ -181,8 +182,8 @@ function startCouchDB() {
   sleep 10
 
   local COUCHDB_COUNT=$(docker ps | grep "couchdb" | wc -l)
-  if [ $COUCHDB_COUNT -ne 2 ]; then
-    error_exit "Expected 2 CouchDB containers, found $COUCHDB_COUNT"
+  if [ $COUCHDB_COUNT -ne 3 ]; then
+    error_exit "Expected 3 CouchDB containers, found $COUCHDB_COUNT"
   fi
 
   infoln "✅ CouchDB started ($COUCHDB_COUNT containers)"
@@ -196,7 +197,7 @@ function startNetworkContainers() {
   fi
 
   infoln "Waiting for network to be ready..."
-  sleep 15
+  sleep 30
 
   local ORDERER_COUNT=$(docker ps | grep "orderer\." | wc -l)
   local PEER_COUNT=$(docker ps | grep "peer0\." | wc -l)
@@ -205,8 +206,8 @@ function startNetworkContainers() {
     error_exit "Expected 1 orderer, found $ORDERER_COUNT"
   fi
 
-  if [ $PEER_COUNT -ne 2 ]; then
-    error_exit "Expected 2 peers, found $PEER_COUNT"
+  if [ $PEER_COUNT -ne 3 ]; then
+    error_exit "Expected 3 peers, found $PEER_COUNT"
   fi
 
   infoln "✅ Network started ($ORDERER_COUNT orderer, $PEER_COUNT peers)"
@@ -227,11 +228,11 @@ function createChannels() {
     error_exit "Failed to create channels"
   fi
 
-  infoln "✅ mychannel created successfully"
+  infoln "✅ kycTokenChannel created successfully"
 }
 
 function deployChaincode() {
-  infoln "Deploying asset chaincode..."
+  infoln "Deploying KYC token chaincode..."
 
   if [ ! -f "./scripts/deploy-chaincodes.sh" ]; then
     error_exit "scripts/deploy-chaincodes.sh not found"
@@ -241,7 +242,7 @@ function deployChaincode() {
     error_exit "Failed to deploy chaincode"
   fi
 
-  infoln "✅ Asset chaincode deployed successfully"
+  infoln "✅ KYC token chaincode deployed successfully"
 }
 
 # ============================================
@@ -390,25 +391,21 @@ function showNetworkStatus() {
   infoln "  CouchDB:     $COUCHDB"
   echo ""
   infoln "CouchDB UI:"
-  infoln "  Buyer:   http://localhost:7984/_utils"
-  infoln "  Seller:  http://localhost:8984/_utils"
+  infoln "  Org1:    http://localhost:7984/_utils"
+  infoln "  Org2:    http://localhost:8984/_utils"
+  infoln "  Org3:    http://localhost:9984/_utils"
   echo ""
 
   if [ "$mode" == "infrastructure" ]; then
     infoln "Next steps:"
-    infoln "  ./network.sh createchannel   # Create mychannel"
-    infoln "  ./network.sh deploycc        # Deploy asset chaincode"
+    infoln "  ./network.sh createchannel   # Create kycTokenChannel"
+    infoln "  ./network.sh deploycc        # Deploy KYC token chaincode"
     echo ""
   elif [ "$mode" == "complete" ]; then
     infoln "✅ Deployment complete!"
     echo ""
-    infoln "  Channel:    mychannel"
-    infoln "  Chaincode:  asset"
-    infoln "  Orgs:       Buyer + Seller"
-    echo ""
-    infoln "Start the gateway:"
-    infoln "  cd gateway-app && node server.js"
-    infoln "  API: http://localhost:3000"
+    infoln "  Channel:    kycTokenChannel"
+    infoln "  Orgs:       Org1 + Org2 + Org3"
     echo ""
   fi
 }

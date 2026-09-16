@@ -1,8 +1,9 @@
 version: '3.7'
 
 volumes:
-  couchdb.buyer:
-  couchdb.seller:
+  couchdb.org1:
+  couchdb.org2:
+  couchdb.org3:
 
 networks:
   fabric_network:
@@ -10,8 +11,8 @@ networks:
     external: true
 
 services:
-  couchdb.buyer:
-    container_name: couchdb.buyer
+  couchdb.org1:
+    container_name: couchdb.org1
     image: couchdb:3.3.2
     labels:
       service: hyperledger-fabric
@@ -21,12 +22,12 @@ services:
     ports:
       - "7984:5984"
     volumes:
-      - couchdb.buyer:/opt/couchdb/data
+      - couchdb.org1:/opt/couchdb/data
     networks:
       - fabric_network
 
-  couchdb.seller:
-    container_name: couchdb.seller
+  couchdb.org2:
+    container_name: couchdb.org2
     image: couchdb:3.3.2
     labels:
       service: hyperledger-fabric
@@ -36,6 +37,21 @@ services:
     ports:
       - "8984:5984"
     volumes:
-      - couchdb.seller:/opt/couchdb/data
+      - couchdb.org2:/opt/couchdb/data
+    networks:
+      - fabric_network
+
+  couchdb.org3:
+    container_name: couchdb.org3
+    image: couchdb:3.3.2
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
+    ports:
+      - "9984:5984"
+    volumes:
+      - couchdb.org3:/opt/couchdb/data
     networks:
       - fabric_network
